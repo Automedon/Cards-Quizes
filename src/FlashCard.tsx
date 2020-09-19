@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  LegacyRef,
-  MutableRefObject,
-} from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 interface FlashCardProps {
   flashcard: {
@@ -21,9 +15,9 @@ const FlashCard: React.FC<FlashCardProps> = ({ flashcard }) => {
   const frontEl = useRef<HTMLDivElement>(null);
   const backEl = useRef<HTMLDivElement>(null);
   function setMaxHeight() {
-    const frontHeight = frontEl.current?.getBoundingClientRect().height;
-    const backHeight = backEl.current?.getBoundingClientRect().height;
-    setHeight(Math.max(frontHeight || 0, backHeight || 0, 100));
+    const frontHeight = frontEl.current!.getBoundingClientRect().height;
+    const backHeight = backEl.current!.getBoundingClientRect().height;
+    setHeight(Math.max(frontHeight, backHeight, 150));
   }
   useEffect(setMaxHeight, [
     flashcard.question,
@@ -33,7 +27,7 @@ const FlashCard: React.FC<FlashCardProps> = ({ flashcard }) => {
   useEffect(() => {
     window.addEventListener("resize", setMaxHeight);
     return () => {
-      window.addEventListener("resize", setMaxHeight);
+      window.removeEventListener("resize", setMaxHeight);
     };
   }, []);
   return (
