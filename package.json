@@ -25,6 +25,8 @@
   "eslintConfig": {
     "extends": "react-app"
   },
+  "homepage": "https://automedon.github.io/Cards-Quizes/",
+  "author": "Automedon",
   "browserslist": {
     "production": [
       ">0.2%",
