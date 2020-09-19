@@ -1,4 +1,10 @@
-import React, { useState } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  LegacyRef,
+  MutableRefObject,
+} from "react";
 
 interface FlashCardProps {
   flashcard: {
@@ -11,18 +17,46 @@ interface FlashCardProps {
 
 const FlashCard: React.FC<FlashCardProps> = ({ flashcard }) => {
   const [flip, setFlip] = useState(false);
+  const [height, setHeight] = useState(100);
+  const frontEl = useRef<HTMLDivElement>(null);
+  const backEl = useRef<HTMLDivElement>(null);
+  function setMaxHeight() {
+    const frontHeight = frontEl.current?.getBoundingClientRect().height;
+    const backHeight = backEl.current?.getBoundingClientRect().height;
+    setHeight(Math.max(frontHeight || 0, backHeight || 0, 100));
+  }
+  useEffect(setMaxHeight, [
+    flashcard.question,
+    flashcard.answer,
+    flashcard.options,
+  ]);
+  useEffect(() => {
+    window.addEventListener("resize", setMaxHeight);
+    return () => {
+      window.addEventListener("resize", setMaxHeight);
+    };
+  }, []);
   return (
-    <div className={`card ${flip && "flip"}`} onClick={() => setFlip(!flip)}>
-      <div className="front">
+    <div
+      style={{ height }}
+      className={`card ${flip && "flip"}`}
+      onClick={() => setFlip(!flip)}
+    >
+      <div className="front" ref={frontEl}>
         {flashcard.question}
         <div className="flashcard-options">
           {flashcard.options.map((option) => {
-            return <div className="flashcard-option">{option}</div>;
+            return (
+              <div className="flashcard-option" key={option}>
+                {option}
+              </div>
+            );
           })}
         </div>
       </div>
-      <div className="back">{flashcard.answer}</div>
-      {flip ? flashcard.answer : flashcard.question}
+      <div className="back" ref={backEl}>
+        {flashcard.answer}
+      </div>
     </div>
   );
 };

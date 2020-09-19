@@ -1,9 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useRef, useState } from "react";
 import FlashCardList from "./FlashCardList";
 import axios from "axios";
 
 function App() {
+  const categoryEl = useRef<HTMLSelectElement>(null);
   const [flashCards, setFlashCards] = useState(SAMPLE_FLASHCARDS);
+  const [categories, setCategories] = useState<any>([]);
+  useEffect(() => {
+    axios.get("https://opentdb.com/api_category.php").then((res) => {
+      setCategories(res.data.trivia_categories);
+    });
+  }, []);
+
   useEffect(() => {
     axios.get("https://opentdb.com/api.php?amount=10").then((res) => {
       setFlashCards(
@@ -31,7 +39,30 @@ function App() {
     textArea.innerHTML = str;
     return textArea.value;
   }
-  return <FlashCardList flashcards={flashCards} />;
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+  }
+  return (
+    <div>
+      <form onSubmit={handleSubmit} className="header">
+        <div className="form-group">
+          <label htmlFor="category">Category</label>
+          <select id="category" ref={categoryEl}>
+            {categories.map((category: { id: number; name: string }) => {
+              return (
+                <option value={category.id} key={category.id}>
+                  {category.name}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+      </form>
+      <div className="container">
+        <FlashCardList flashcards={flashCards} />
+      </div>
+    </div>
+  );
 }
 
 const SAMPLE_FLASHCARDS = [
